@@ -1,2 +1,6 @@
 *.orig
 apio.ini
+bin
+include
+lib
+pip-selfcheck.json

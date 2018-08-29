@@ -64,7 +64,6 @@ localparam  LD_VX_K = 6'd27;
 localparam  LD_DT_VX = 6'd28;
 localparam  LD_ST_VX = 6'd29;
 localparam  ADD_I_VX = 6'd30;
-localparam  LD_ST_VX = 6'd31;
 localparam  LD_F_VX = 6'd32;
 localparam  LD_B_VX = 6'd33;
 localparam  STORE_REG_VX = 6'd34;

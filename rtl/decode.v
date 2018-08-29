@@ -79,22 +79,10 @@ always@(posedge clk) begin
   nib <= 4'd0;
   addr_out = 12'd0;
   case(instruction[15:12])
-<<<<<<< HEAD
-    4'd0: begin
+    4'h0: begin
       if(instruction[3:0] == 4'h0)
         decode <= DISP_CLR;
       else if(instruction[3:0] == 4'hE)
-=======
-    4'h0: begin
-      //zero instructions -
-      //display clear
-      //return from subroutine
-      if(instruction[3:0] == 4'h0)
-      begin
-        decode <= DISP_CLR;
-      end else if(instruction[3:0] == 4'hE)
-      begin
->>>>>>> 7ef098fb7e4024c64ba789209a0b89d6dd40b8d0
         decode <= RET;
       else
         decode <= 0;
@@ -140,15 +128,9 @@ always@(posedge clk) begin
       x <= instruction[11:8];
     end
 
-<<<<<<< HEAD
-    4'd8: begin
-      case(instruction[3:0])
-        4'd0: begin
-=======
     4'h8: begin
       case(instruction[3:0])
         4'h0: begin
->>>>>>> 7ef098fb7e4024c64ba789209a0b89d6dd40b8d0
           decode <= LD_VX_VY;
           val <= instruction[7:0];
           x <= instruction[11:8];
@@ -238,11 +220,7 @@ always@(posedge clk) begin
     4'hF: begin
       x <= instruction[11:8];
       case(instruction[7:0])
-<<<<<<< HEAD
         8'h07:
-=======
-        4'h07:
->>>>>>> 7ef098fb7e4024c64ba789209a0b89d6dd40b8d0
           decode <= LD_VX_DT;
         8'h0A:
           decode <= LD_VX_K;

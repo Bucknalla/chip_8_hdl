@@ -26,7 +26,7 @@ module decode(
   output reg [5:0] decode,
 
 
-  output reg [15:0] addr_out,
+  output reg [11:0] addr_out,
   output reg [3:0] x,
   output reg [3:0] y,
   output reg [3:0] nib,

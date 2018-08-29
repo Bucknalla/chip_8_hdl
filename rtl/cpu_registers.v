@@ -19,6 +19,7 @@
 
 module cpu_registers(
            input				clk,
+           input        rst,
 
            input		[3:0]	x,      // selects register Vx, where x points to the address
            input		[3:0]	y,      // selects register Vy, where y points to the address
@@ -26,6 +27,12 @@ module cpu_registers(
            output	    [7:0]	Vx,
            output	    [7:0]	Vy,
            output	    [7:0]	Vf,
+
+           input pc_inc,
+           input sp_inc,
+           input sp_dec,
+           output   [15:0] pc_out,
+           output   [15:0] sp_out,
 
 
            input				wx,     // Vx write enable
@@ -37,6 +44,10 @@ module cpu_registers(
 
 reg [7:0] Vreg [0:15];
 
+reg [15:0] pc = 16'h0; //program counter, holds address of current instruction
+reg [7:0] sp = 8'd0; //stack pointer, holds address of top of stack, stack starts at 0xEA0
+localparam STACK_OFFSET = 16'd240;
+
 assign Vx = Vreg[x];
 assign Vy = Vreg[y];
 assign Vf = Vreg[15];
@@ -46,6 +57,15 @@ always @ (posedge clk) begin
         Vreg[x] <= nx;
     if (wf)
         Vreg[15] <= nf;
+    if (pc_inc)
+        pc += 1; //instructions are 2 bytes, and each address addresses only 1 byte
+    if (sp_inc)
+        sp += 1;
+    if (sp_dec)
+        sp -= 1;
 end
+
+assign pc_out = pc;
+assign sp_out = STACK_OFFSET + sp;
 
 endmodule

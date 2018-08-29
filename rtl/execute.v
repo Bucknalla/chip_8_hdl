@@ -97,8 +97,7 @@ module execute(
   //wire [8:0] add_val = vx + val;
 
   assign r_addr = (decode == RET) ? (sp_rd + STACK_OFFSET) : 0;
-  assign r_en = (decode == RET) ? (sp_rd + STACK_OFFSET) : 0;
-
+  assign r_en = (decode == RET);
  ///////////////////
  //////////////////
  //ADD PC INCREMENT AND FETCH PULSE
@@ -118,12 +117,11 @@ module execute(
       RET: begin
         //get stack
        pc_en <= 1;
-
-
        //retrieve pc value from top of stack
-
-       //set pc to this value
+       pc_wr <= r_data;
        //decrement stack pointer
+       sp_en <= 1;
+       sp_wr <= sp_rd - 1;
 
       CALL: begin
         sp_en <= 1;

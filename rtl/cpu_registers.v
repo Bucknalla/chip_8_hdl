@@ -18,30 +18,30 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module cpu_registers(
-           input				clk,
-           input        rst,
+    input clk,
+    input rst,
 
-           input		[3:0]	x,      // selects register Vx, where x points to the address
-           input		[3:0]	y,      // selects register Vy, where y points to the address
+    input [3:0]	x,      // selects register Vx, where x points to the address
+    input [3:0]	y,      // selects register Vy, where y points to the address
 
-           output	    [7:0]	Vx,
-           output	    [7:0]	Vy,
-           output	    [7:0]	Vf,
+    output [7:0] Vx,
+    output [7:0] Vy,
+    output [7:0] Vf,
 
-           input pc_inc,
-           input sp_inc,
-           input sp_dec,
-           input [15:0] pc_in,
-           output   [15:0] pc_out,
-           output   [15:0] sp_out,
+    input pc_inc,
+    input sp_inc,
+    input sp_dec,
+    input [15:0] pc_in,
+    output [15:0] pc_out,
+    output [15:0] sp_out,
 
 
-           input				wx,     // Vx write enable
-           input		[7:0]	nx,     // new Vx data
+    input wx,     // Vx write enable
+    input [7:0] nx,     // new Vx data
 
-           input				wf,     // Vf write enable
-           input		[7:0]	nf      // new Vf data
-       );
+    input wf,     // Vf write enable
+    input [7:0] nf      // new Vf data
+    );
 
 reg [7:0] Vreg [0:15];
 

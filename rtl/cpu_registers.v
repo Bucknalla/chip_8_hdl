@@ -31,6 +31,7 @@ module cpu_registers(
            input pc_inc,
            input sp_inc,
            input sp_dec,
+           input [15:0] pc_in,
            output   [15:0] pc_out,
            output   [15:0] sp_out,
 
@@ -58,11 +59,11 @@ always @ (posedge clk) begin
     if (wf)
         Vreg[15] <= nf;
     if (pc_inc)
-        pc += 1; //instructions are 2 bytes, and each address addresses only 1 byte
+        pc <= pc_in; 
     if (sp_inc)
-        sp += 1;
+        sp <= sp+1;
     if (sp_dec)
-        sp -= 1;
+        sp <= sp-1;
 end
 
 assign pc_out = pc;

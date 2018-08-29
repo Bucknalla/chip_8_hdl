@@ -1,2 +1,12 @@
+
+
+
+
+all:
+	apio build
+
+init:
+	apio init --board icestick
+
 clean:
-	rm *.orig
+	apio clean

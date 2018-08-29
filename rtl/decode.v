@@ -79,93 +79,111 @@ always@(posedge clk) begin
   nib <= 4'd0;
   addr_out = 12'd0;
   case(instruction[15:12])
+<<<<<<< HEAD
     4'd0: begin
       if(instruction[3:0] == 4'h0)
         decode <= DISP_CLR;
       else if(instruction[3:0] == 4'hE)
+=======
+    4'h0: begin
+      //zero instructions -
+      //display clear
+      //return from subroutine
+      if(instruction[3:0] == 4'h0)
+      begin
+        decode <= DISP_CLR;
+      end else if(instruction[3:0] == 4'hE)
+      begin
+>>>>>>> 7ef098fb7e4024c64ba789209a0b89d6dd40b8d0
         decode <= RET;
       else
         decode <= 0;
     end
 
-    4'd1: begin
+    4'h1: begin
       decode <= JMP;
       addr_out <= instruction[11:0];
     end
 
-    4'd2: begin
+    4'h2: begin
       decode <= CALL;
       addr_out <= instruction[11:0];
     end
 
-    4'd3: begin
+    4'h3: begin
       decode <= SE_VAL;
       x <= instruction[11:8];
       val <= instruction[7:0];
     end
 
-    4'd4: begin
+    4'h4: begin
       decode <= SNE_VAL;
       x <= instruction[11:8];
       val <= instruction[7:0];
     end
 
-    4'd5: begin
+    4'h5: begin
       decode <= SE_VX_VY;
       x <= instruction[11:8];
       y <= instruction[7:4];
     end
 
-    4'd6: begin
+    4'h6: begin
       decode <= LD_VX_VAL;
       val <= instruction[7:0];
       x <= instruction[11:8];
     end
 
-    4'd7: begin
+    4'h7: begin
       decode <= ADD_VX_VAL;
       val <= instruction[7:0];
       x <= instruction[11:8];
     end
 
+<<<<<<< HEAD
     4'd8: begin
       case(instruction[3:0])
         4'd0: begin
+=======
+    4'h8: begin
+      case(instruction[3:0])
+        4'h0: begin
+>>>>>>> 7ef098fb7e4024c64ba789209a0b89d6dd40b8d0
           decode <= LD_VX_VY;
           val <= instruction[7:0];
           x <= instruction[11:8];
         end
-        4'd1: begin
+        4'h1: begin
           decode <= OR_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
         end
-        4'd2: begin
+        4'h2: begin
           decode <= AND_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
         end
-        4'd3: begin
+        4'h3: begin
           decode <= XOR_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
         end
-        4'd4: begin
+        4'h4: begin
           decode <= ADD_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
         end
-        4'd5: begin
+        4'h5: begin
           decode <= SUB_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
         end
-        4'd6: begin
+        4'h6: begin
           decode <= SHR_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
         end
-        4'd7: begin
+        4'h7: begin
           decode <= SUBN_VX_VY;
           y <= instruction[7:4];
           x <= instruction[11:8];
@@ -178,35 +196,35 @@ always@(posedge clk) begin
       endcase
     end
 
-    4'd9: begin
+    4'h9: begin
       decode <= SNE_VX_VY;
       y <= instruction[7:4];
       x <= instruction[11:8];
     end
 
-    4'd10: begin
+    4'hA: begin
       decode <= LD_I_ADDR;
       addr_out <= instruction[11:0];
     end
 
-    4'd11: begin
-      decode <= JMP_V0_ADDR;
+    4'hB: begin
+      decode <= JUMP_V0_ADDR;
       addr_out <= instruction[11:0];
     end
 
-    4'd12: begin
+    4'hC: begin
       decode <= RAND_VX_VAL;
       addr_out <= instruction[11:0];
     end
 
-    4'd13: begin
+    4'hD: begin
       decode <= DRW_VX_VY;
       x <= instruction[11:8];
       y <= instruction[7:4];
       nib <= instruction[3:0];
     end
 
-    4'd14: begin
+    4'hE: begin
       x <= instruction[11:8];
       if(instruction[7:0] == 8'h9E) begin
         decode <= SKP_VX;
@@ -217,10 +235,14 @@ always@(posedge clk) begin
       end
     end
 
-    4'd15: begin
+    4'hF: begin
       x <= instruction[11:8];
       case(instruction[7:0])
+<<<<<<< HEAD
         8'h07:
+=======
+        4'h07:
+>>>>>>> 7ef098fb7e4024c64ba789209a0b89d6dd40b8d0
           decode <= LD_VX_DT;
         8'h0A:
           decode <= LD_VX_K;

@@ -6,3 +6,4 @@ lib
 pip-selfcheck.json
 hardware.blif
 .sconsign.dblite
+*.pcf

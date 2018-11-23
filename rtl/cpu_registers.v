@@ -68,7 +68,7 @@ always @ (posedge clk) begin
     if (sp_en)
         sp <= sp_wr;
     if (i_en)
-      i <= i_wr;
+       i <= i_wr;
 end
 
 assign pc_rd = pc;

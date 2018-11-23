@@ -32,7 +32,7 @@ module decode(
   output reg [3:0] nib,
   output reg [7:0] val
 
-       );
+);
 
 localparam DISP_CLR = 6'd1;
 localparam RET = 6'd2;

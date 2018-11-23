@@ -27,9 +27,10 @@ module execute(
     input [3:0] x,
 
     output reg [3:0] x_out,
-    output reg wx, //vx write enable
-    output reg [7:0] nx, // new vx data
-    output reg wf,
+    // output reg x, // Vx write enable
+    output reg [7:0] nx, // new Vx data
+    output reg nf, // new Vf flag
+    output reg wf, // write Vf flag
     output reg [7:0] wx,
 
     input [11:0] addr,
@@ -37,9 +38,9 @@ module execute(
     input [7:0] sp_rd,
     input [15:0] i_rd,
 
-    output w_en,
-    output [7:0] w_addr,
-    output [15:0] w_data,
+    output reg w_en,
+    output reg [7:0] w_addr,
+    output reg [15:0] w_data,
     output r_en,
     output [7:0] r_addr,
     input [15:0] r_data,
@@ -51,6 +52,8 @@ module execute(
     output reg sp_en,
     output reg [15:0] i_wr,
     output reg i_en
+
+    // wr???
   );
 
   localparam DISP_CLR = 6'd1;
@@ -83,7 +86,7 @@ module execute(
   localparam  LD_DT_VX = 6'd28;
   localparam  LD_ST_VX = 6'd29;
   localparam  ADD_I_VX = 6'd30;
-  localparam  LD_ST_VX = 6'd31;
+  // localparam  LD_ST_VX = 6'd31;
   localparam  LD_F_VX = 6'd32;
   localparam  LD_B_VX = 6'd33;
   localparam  STORE_REG_VX = 6'd34;
@@ -122,6 +125,7 @@ module execute(
        //decrement stack pointer
        sp_en <= 1;
        sp_wr <= sp_rd - 1;
+      end
 
       CALL: begin
         sp_en <= 1;
@@ -192,8 +196,7 @@ module execute(
         x_out <= x;
         wx <= 1;
         nx <= add_vx_vy[7:0];
-        //need to store carry in VF
-        wf <= 1;
+        wf <= 1; //need to store carry in VF
         nf <= add_vx_vy[8];
       end
 
@@ -202,7 +205,7 @@ module execute(
         wx <= 1;
         nx <= vx - vy;
         wf <= 1;
-        nf <= sub_vx_vy_flag;
+        nf <= vx < vy;
       end
 
       SHR_VX_VY: begin
@@ -218,7 +221,7 @@ module execute(
         wx <= 1;
         nx <= vy - vx;
         wf <= 1;
-        nf <= sub_vy_vx_flag;
+        nf <= vy < vx;
       end
 
       SHL_VX_VY: begin

@@ -20,38 +20,38 @@ module execute(
     input clk,
     input rst,
 
-    input [5:0] decode,
-    input [7:0] val,
-    input [7:0] vx,
-    input [7:0] vy,
-    input [3:0] x,
+    input [5:0] i_decode, // the operation, I.e ADD, MOV
+    input [7:0] i_byte_kk, //byte, 'kk' in the cowgod reference
+    input [7:0] i_vx_data, //value inside register i_vx_data
+    input [7:0] i_vy_data, //value inside register i_vy_data
+    input [3:0] i_vx_addr, //adress of i_vx_data register - is this needed
 
-    output reg [3:0] x_out,
-    // output reg x, // Vx write enable
-    output reg [7:0] nx, // new Vx data
-    output reg nf, // new Vf flag
-    output reg wf, // write Vf flag
-    output reg [7:0] wx,
+    output reg [3:0] o_vx_addr //address of i_vx_addr register to write to
+    output reg [7:0] o_vx_data, // new i_vx_data data
+    output reg o_vf_data, // new Vf flag
+    output reg o_vf_en, // write Vf flag
+    output reg o_vx_en, //write to register address o_vx_addr enable
 
-    input [11:0] addr,
-    input [15:0] pc_rd,
-    input [7:0] sp_rd,
-    input [15:0] i_rd,
+    input [11:0] i_mem_addr,// used to be called addr
+    input [15:0] i_pc_data,
+    input [7:0] i_sp_data,
+    input [15:0] i_i_data,
 
-    output reg w_en,
-    output reg [7:0] w_addr,
-    output reg [15:0] w_data,
-    output r_en,
-    output [7:0] r_addr,
-    input [15:0] r_data,
+    //memory interface
+    output reg o_mem_w_en,
+    output reg [7:0] o_mem_w_addr,
+    output reg [15:0] o_mem_w_data,
+    output o_mem_r_en,
+    output [7:0] o_mem_r_addr,
+    input [15:0] o_mem_r_data,
 
 
-    output reg [15:0] pc_wr,
-    output reg pc_en,
-    output reg [7:0] sp_wr,
-    output reg sp_en,
-    output reg [15:0] i_wr,
-    output reg i_en
+    output reg [15:0] o_pc_data,
+    output reg o_pc_en,
+    output reg [7:0] o_sp_data ,
+    output reg o_sp_en,
+    output reg [15:0] o_i_data,
+    output reg o_i_en
 
     // wr???
   );
@@ -94,165 +94,164 @@ module execute(
 
   localparam STACK_OFFSET = 16'd240;
 
-  wire [8:0] add_vx_vy = vx + vy;
-  wire sub_vx_vy_flag = vx < vy;
-  wire sub_vy_vx_flag = vx > vy;
-  //wire [8:0] add_val = vx + val;
+  wire [8:0] add_vx_vy = i_vx_data + i_vy_data;
+  wire sub_vx_vy_flag = i_vx_data < i_vy_data;
+  wire sub_vy_vx_flag = i_vx_data > i_vy_data;
+  //wire [8:0] add_val = i_vx_data + i_byte_kk;
 
-  assign r_addr = (decode == RET) ? (sp_rd + STACK_OFFSET) : 0;
-  assign r_en = (decode == RET);
+  assign o_mem_r_addr = (i_decode == RET) ? (i_sp_data + STACK_OFFSET) : 0;
+  assign o_mem_r_en = (i_decode == RET);
  ///////////////////
  //////////////////
  //ADD PC INCREMENT AND FETCH PULSE
   always@(posedge clk) begin
-    sp_en <= 0;
-    pc_en <= 0;
-    i_en <= 0;
+    o_sp_en <= 0;
+    o_pc_en <= 0;
+    o_i_en <= 0;
     wr_en <= 0;
-    wx <= 0;
-    nx <= 0;
-    wf<= 0;
-    wx <= 0;
-    case(decode)
+    o_vx_en <= 0;
+    o_vx_data <= 0;
+    o_vf_en<= 0;
+    case(i_decode)
       JMP:
-        pc_wr <= addr;
+        o_pc_data <= i_mem_addr;
 
       RET: begin
         //get stack
-       pc_en <= 1;
+       o_pc_en <= 1;
        //retrieve pc value from top of stack
-       pc_wr <= r_data;
+       o_pc_data <= o_mem_r_data;
        //decrement stack pointer
-       sp_en <= 1;
-       sp_wr <= sp_rd - 1;
+       o_sp_en <= 1;
+       o_sp_data <= i_sp_data - 1;
       end
 
       CALL: begin
-        sp_en <= 1;
-        sp_wr <= sp_rd + 1;
+        o_sp_en <= 1;
+        o_sp_data <= i_sp_data + 1;
         //change names for bram signal
-        w_addr <= STACK_OFFSET + sp_rd;
-        w_data <= pc_rd;
-        w_en <= 1;
-        pc_wr <= addr;
-        pc_en <= 1;
+        o_mem_w_addr <= STACK_OFFSET + i_sp_data;
+        o_mem_w_data <= i_pc_data;
+        o_mem_w_en <= 1;
+        o_pc_data <= i_mem_addr;
+        o_pc_en <= 1;
       end
 
       SE_VAL:
-        if(vx == val) begin
-          pc_wr <= pc_rd+1;
-          pc_en <= 1;
+        if(i_vx_data == i_byte_kk) begin
+          o_pc_data <= i_pc_data+1;
+          o_pc_en <= 1;
         end
 
       SNE_VAL:
-        if(vx != val) begin
-          pc_wr <= pc_rd+1;
-          pc_en <= 1;
+        if(i_vx_data != i_byte_kk) begin
+          o_pc_data <= i_pc_data+1;
+          o_pc_en <= 1;
         end
 
       SE_VX_VY:
-        if(vx == vy) begin
-          pc_wr <= pc_rd+1;
-          pc_en <= 1;
+        if(i_vx_data == i_vy_data) begin
+          o_pc_data <= i_pc_data+1;
+          o_pc_en <= 1;
         end
 
       LD_VX_VAL: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= val;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_byte_kk;
       end
 
       ADD_VX_VAL: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vx + val;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vx_data + i_byte_kk;
       end
 
       LD_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vy;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vy_data;
       end
 
       OR_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vx | vy;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vx_data | i_vy_data;
       end
 
       AND_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vx & vy;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vx_data & i_vy_data;
       end
 
       XOR_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vx ^ vy;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vx_data ^ i_vy_data;
       end
 
       ADD_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= add_vx_vy[7:0];
-        wf <= 1; //need to store carry in VF
-        nf <= add_vx_vy[8];
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= add_vx_vy[7:0];
+        o_vf_en <= 1; //need to store carry in VF
+        o_vf_data <= add_vx_vy[8];
       end
 
       SUB_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vx - vy;
-        wf <= 1;
-        nf <= vx < vy;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vx_data - i_vy_data;
+        o_vf_en <= 1;
+        o_vf_data <= i_vx_data < i_vy_data;
       end
 
       SHR_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vy >> 1;
-        wf <= 1;
-        nf <= vy[0];
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vy_data >> 1;
+        o_vf_en <= 1;
+        o_vf_data <= i_vy_data[0];
       end
 
       SUBN_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vy - vx;
-        wf <= 1;
-        nf <= vy < vx;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vy_data - i_vx_data;
+        o_vf_en <= 1;
+        o_vf_data <= i_vy_data < i_vx_data;
       end
 
       SHL_VX_VY: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= vy << 1;
-        wf <= 1;
-        nf <= vy[7];
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_vy_data << 1;
+        o_vf_en <= 1;
+        o_vf_data <= i_vy_data[7];
       end
 
       SNE_VX_VY: begin
-        if(vx != vy) begin
-          pc_wr <= pc_rd+1;
-          pc_en <= 1;
+        if(i_vx_data != i_vy_data) begin
+          o_pc_data <= i_pc_data+1;
+          o_pc_en <= 1;
         end
       end
 
       LD_I_ADDR: begin
-        i_en <= 1;
-        i_wr <= {4'd0, addr};
+        o_i_en <= 1;
+        o_i_data <= {4'd0, i_mem_addr};
       end
 
       JMP_V0_ADDR: begin
-        pc_en <= 1;
-        pc_wr <= addr + vx; //vx in this case is v0
+        o_pc_en <= 1;
+        o_pc_data <= i_mem_addr + i_vx_data; //i_vx_data in this case is v0
       end
 
       RAND_VX_VAL: begin
-        x_out <= x;
-        wx <= 1;
-        nx <= val & rng;
+        o_vx_addr <= i_vx_addr;
+        o_vx_en <= 1;
+        o_vx_data <= i_byte_kk & rng;
       end
 
 
